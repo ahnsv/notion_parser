@@ -40,9 +40,11 @@ const getPageIDFromUrl = (url: string) => {
  */
 
 async function getError(res: Response) {
-  return `Notion API error (${res.status}) \n${await getJSONHeaders(
-    res
-  )}\n ${await getBodyOrNull(res)}`;
+  return new Error(
+    `Notion API error (${res.status}) \n${
+      res.statusText
+    }\n ${await getBodyOrNull(res)}`
+  );
 }
 
 function getJSONHeaders(res: Response) {
@@ -77,7 +79,9 @@ const mapToNotionAPI = async (
   if (res.ok) {
     return res.json();
   } else {
-    throw new Error(await getError(res));
+    const error = await getError(res);
+    console.log(error);
+    throw error;
   }
 };
 
