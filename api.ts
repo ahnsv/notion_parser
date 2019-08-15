@@ -1,6 +1,12 @@
+import {
+  NotionAPIEnum,
+  LPCRequestBody,
+  QCRequestBody,
+  NotionBlock
+} from "./model";
+import { NOTION_URL_REGEX, NOTION_URL } from "./constants";
+
 const fetch = require("node-fetch");
-const NOTION_URL = "https://www.notion.so/";
-const NOTION_URL_REGEX = new RegExp("https://www.notion.so/");
 /**
  * 노션 page ID 포맷에 맞게 파싱
  * @param url
@@ -31,57 +37,6 @@ const getPageIDFromUrl = (url: string) => {
   const pageID = parseToNotionPageIdFormat(rawPageID);
   return pageID;
 };
-
-/**
- * @description types for API
- */
-export enum NotionAPIEnum {
-  LOAD_PAGE_CHUNK = "loadPageChunk",
-  QUERY_COLLECTION = "queryCollection"
-}
-export interface LPCRequestBody {
-  pageId: string;
-  limit: number;
-  cursor: { stack: any[] };
-  chunkNumber: number;
-  verticalColumns: boolean;
-}
-export interface QCRequestBody {
-  collectionId: string;
-  collectionViewId: string;
-  loader: {
-    limit: number;
-    loadContentCover: string;
-    type: string;
-    userLocale: string;
-    userTimeZone: string;
-  };
-  query: {
-    aggregate: string;
-    filter: string;
-    filter_operator: string;
-    sort: string;
-  };
-}
-
-export interface NotionBlock {
-  role: string;
-  value: {
-    alive: boolean;
-    created_by: string;
-    created_time: number;
-    id: string;
-    last_edited_by: string;
-    last_edited_time: string;
-    parent_id: string;
-    parent_table: string;
-    properties: {
-      title: any[];
-    };
-    type: string;
-    version: number;
-  };
-}
 
 /**
  * @description Handling promise responses
@@ -149,32 +104,4 @@ const loadPageChunk = async ({
     verticalColumns
   });
 
-try {
-  const pageId = getPageIDFromUrl(
-    "https://www.notion.so/taebae/cms-a7c23632abfa4682b3ecb62a39787655"
-  );
-  const meta = setNotionPageID(pageId as string);
-  const pageChunk = loadPageChunk({
-    pageId: meta.pageId,
-    limit: 100,
-    cursor: { stack: [] },
-    chunkNumber: 0,
-    verticalColumns: false
-  });
-
-  pageChunk.then(({ recordMap }) => {
-    // block -> Object.values() -> value -> properties -> title -> concat
-    const blocks: NotionBlock[] = Object.values(recordMap.block);
-    for (const block of blocks) {
-      if (block.value.properties) {
-        if (block.value.properties.title) {
-          console.log(
-            block.value.properties.title.reduce((prev, curr) => prev + curr, "")
-          );
-        }
-      }
-    }
-  });
-} catch (error) {
-  console.log(error);
-}
+export { loadPageChunk, mapToNotionAPI, getPageIDFromUrl, setNotionPageID };
