@@ -1,5 +1,10 @@
-import { loadPageChunk, getPageIDFromUrl, setNotionPageID } from "./api";
-import { NotionBlock } from "./model";
+import {
+  loadPageChunk,
+  getPageIDFromUrl,
+  setNotionPageID,
+  queryCollection
+} from "./api";
+import { NotionBlock, NoitionQueryCollection } from "./model";
 
 /**
  * Testing part
@@ -17,10 +22,30 @@ try {
     verticalColumns: false
   });
 
-  pageChunk.then(({ recordMap }) => {
-    // block -> Object.values() -> value -> properties -> title -> concat
+  pageChunk.then(async ({ recordMap }) => {
     const blocks: NotionBlock[] = Object.values(recordMap.block);
     for (const block of blocks) {
+      if (block.value.type === "collection_view") {
+        const collectionView: NoitionQueryCollection = await queryCollection({
+          collectionId: block.value.collection_id as string,
+          collectionViewId: block.value.view_ids[0]
+        });
+        const collection = collectionView.recordMap.collection;
+        const entries = Object.values(collectionView.recordMap.block).filter(
+          (entry: NotionBlock) =>
+            entry.value && entry.value.parent_id === block.value.collection_id
+        );
+        for (const entry of entries) {
+          if (entry.value.properties) {
+            console.log(
+              `Table title: [${
+                collection[entry.value.parent_id].value.name[0]
+              }]`,
+              `Name col: [${entry.value.properties.title[0][0]}]`
+            );
+          }
+        }
+      }
       if (block.value.properties) {
         if (block.value.properties.title) {
           console.log(

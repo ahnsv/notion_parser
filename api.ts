@@ -1,23 +1,18 @@
-import {
-  NotionAPIEnum,
-  LPCRequestBody,
-  QCRequestBody,
-  NotionBlock
-} from "./model";
-import { NOTION_URL_REGEX, NOTION_URL } from "./constants";
+import { NOTION_URL, NOTION_URL_REGEX } from "./constants";
+import { LPCRequestBody, NotionAPIEnum, QCRequestBody } from "./model";
 
 const fetch = require("node-fetch");
+
 /**
  * 노션 page ID 포맷에 맞게 파싱
  * @param url
  */
 const parseToNotionPageIdFormat = (url: string) =>
-  url.length !== 32
-    ? new Error("노션 페이지 아이디를 찾을 수 없습니다")
-    : `${url.substr(0, 8)}-${url.substr(8, 4)}-${url.substr(
-        12,
-        4
-      )}-${url.substr(16, 4)}-${url.substr(20, 12)}`;
+  `${url.substr(0, 8)}-${url.substr(8, 4)}-${url.substr(12, 4)}-${url.substr(
+    16,
+    4
+  )}-${url.substr(20, 12)}`;
+
 /**
  * @description Notion 페이지 ID store
  */
@@ -25,7 +20,7 @@ const tempTargetNotionPageMeta = {
   pageId: "",
   token: ""
 };
-const setNotionPageID = (pageId: String) => {
+const setNotionPageID = (pageId: string) => {
   return Object.assign(tempTargetNotionPageMeta, { pageId: pageId });
 };
 const getPageIDFromUrl = (url: string) => {
@@ -104,4 +99,45 @@ const loadPageChunk = async ({
     verticalColumns
   });
 
-export { loadPageChunk, mapToNotionAPI, getPageIDFromUrl, setNotionPageID };
+/**
+ * @description 노션 테이블 데이터 가져오기
+ */
+const queryCollection = async ({
+  collectionId,
+  collectionViewId,
+  loader = {
+    limit: 70,
+    loadContentCover: true,
+    type: "table",
+    userLocale: "en",
+    userTimeZone: "Asia/Seoul"
+  },
+  query = {
+    aggregate: [
+      {
+        aggregation_type: "count",
+        id: "count",
+        property: "title",
+        type: "title",
+        view_type: "table"
+      }
+    ],
+    filter: [],
+    filter_operator: "and",
+    sort: []
+  }
+}: QCRequestBody) =>
+  await mapToNotionAPI(NotionAPIEnum.QUERY_COLLECTION, {
+    collectionId,
+    collectionViewId,
+    loader,
+    query
+  });
+
+export {
+  loadPageChunk,
+  mapToNotionAPI,
+  getPageIDFromUrl,
+  setNotionPageID,
+  queryCollection
+};
