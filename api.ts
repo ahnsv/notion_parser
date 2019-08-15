@@ -1,5 +1,11 @@
 import { NOTION_URL, NOTION_URL_REGEX } from "./constants";
-import { LPCRequestBody, NotionAPIEnum, QCRequestBody } from "./model";
+import {
+  LPCRequestBody,
+  NotionAPIEnum,
+  QCRequestBody,
+  NotionBlock,
+  NotionQueryCollection
+} from "./model";
 
 const fetch = require("node-fetch");
 
@@ -138,10 +144,64 @@ const queryCollection = async ({
     query
   });
 
+const parseNotionPage = (pageUrl: string) => {
+  try {
+    const pageId = getPageIDFromUrl(pageUrl);
+    const meta = setNotionPageID(pageId as string);
+    const pageChunk = loadPageChunk({
+      pageId: meta.pageId,
+      limit: 100,
+      cursor: { stack: [] },
+      chunkNumber: 0,
+      verticalColumns: false
+    });
+
+    pageChunk.then(async ({ recordMap }) => {
+      const blocks: NotionBlock[] = Object.values(recordMap.block);
+      for (const block of blocks) {
+        if (block.value.type === "collection_view") {
+          const collectionView: NotionQueryCollection = await queryCollection({
+            collectionId: block.value.collection_id as string,
+            collectionViewId: block.value.view_ids[0]
+          });
+          const collection = collectionView.recordMap.collection;
+          const entries = Object.values(collectionView.recordMap.block).filter(
+            (entry: NotionBlock) =>
+              entry.value && entry.value.parent_id === block.value.collection_id
+          );
+          for (const entry of entries) {
+            if (entry.value.properties) {
+              console.log(
+                `Table title: [${
+                  collection[entry.value.parent_id].value.name[0]
+                }]`,
+                `Name col: [${entry.value.properties.title[0][0]}]`
+              );
+            }
+          }
+        }
+        if (block.value.properties) {
+          if (block.value.properties.title) {
+            console.log(
+              block.value.properties.title.reduce(
+                (prev, curr) => prev + curr,
+                ""
+              )
+            );
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export {
   loadPageChunk,
   mapToNotionAPI,
   getPageIDFromUrl,
   setNotionPageID,
-  queryCollection
+  queryCollection,
+  parseNotionPage
 };

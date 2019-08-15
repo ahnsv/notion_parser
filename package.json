@@ -1,14 +1,16 @@
 {
   "name": "notion_integrate",
   "version": "1.0.0",
-  "description": "- 노션 워크스페이스, 페이지 받아오기\r - 노션 블락 선택\r - 노션 mongodb 연동\r - 노션 로그인 체크 + 로그인",
-  "main": "index.js",
+  "description": "Notion 페이지 파싱",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ts-node test.ts"
+  },
+  "config": {
+    "testPage": "https://www.notion.so/taebae/cms-a7c23632abfa4682b3ecb62a39787655"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Humphrey Ahn",
+  "license": "MIT",
   "dependencies": {
     "@types/node": "^12.7.2",
     "node-fetch": "^2.6.0",

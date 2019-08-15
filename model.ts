@@ -78,7 +78,7 @@ export interface NotionCollection {
   };
 }
 
-export interface NoitionQueryCollection {
+export interface NotionQueryCollection {
   recordMap: {
     block: {
       [hash: string]: NotionBlock;
