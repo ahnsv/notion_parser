@@ -6,6 +6,15 @@ Notion 페이지를 파싱해서 날려줘요. (간단 🙊)
 
 > Disclaimer2: 노션 api가 아직 뒤죽박죽이라 코드가 유해할수 있습니다...
 
+## TEST
+
+```bash
+# 기본 테스트 페이지로 파싱
+npm run test
+# 커스텀 테스트 페이지로 파싱
+npm run test --testPage=https:/www.notion.so/{여러분의노션페이지}
+```
+
 ## Possible usage
 
 - React Hooks 같은 거로 래핑해서 간단하게 사용하기
