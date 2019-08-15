@@ -2,9 +2,9 @@ import { NOTION_URL, NOTION_URL_REGEX } from "./constants";
 import {
   LPCRequestBody,
   NotionAPIEnum,
-  QCRequestBody,
   NotionBlock,
-  NotionQueryCollection
+  NotionQueryCollection,
+  QCRequestBody
 } from "./model";
 
 const fetch = require("node-fetch");

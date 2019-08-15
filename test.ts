@@ -1,11 +1,4 @@
-import {
-  loadPageChunk,
-  getPageIDFromUrl,
-  setNotionPageID,
-  queryCollection,
-  parseNotionPage
-} from "./api";
-import { NotionBlock, NotionQueryCollection } from "./model";
+import { parseNotionPage } from "./api";
 
 /**
  * Testing part
