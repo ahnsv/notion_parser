@@ -53,10 +53,6 @@ async function getError(res: Response) {
   );
 }
 
-function getJSONHeaders(res: Response) {
-  return JSON.stringify(res.headers.get(""));
-}
-
 function getBodyOrNull(res: Response) {
   try {
     return res.text();
